@@ -58,7 +58,7 @@ def get_books(request):
     elif sort == 'za':
         queryset = queryset.order_by('-title')
     elif sort == 'newest':
-        queryset = queryset.order_by('-id')
+        queryset = queryset.order_by('-added_at')
     else:
         queryset = queryset.order_by('?')
 
@@ -134,7 +134,7 @@ def search_books(request):
     elif sort == 'za':
         combined.sort(key=lambda b: b.title, reverse=True)
     elif sort == 'newest':
-        combined.sort(key=lambda b: b.id, reverse=True)
+        combined.sort(key=lambda b: b.added_at, reverse=True)
 
     total = len(combined)
     offset = (page - 1) * limit
