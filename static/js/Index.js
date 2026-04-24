@@ -1,5 +1,9 @@
 const API_BASE = '/api';
 const ITEMS_PER_PAGE = 30;
+const PORTAL_ROUTES = {
+    admin: '/admin-portal/',
+    student: '/student-portal/'
+};
 
 let currentPage = 1;
 let currentCategory = 'all';
@@ -462,6 +466,36 @@ function closeLoginModal() {
     document.getElementById('loginError').style.display = 'none';
 }
 
+function showPortalNavigationError(errorDiv, submitBtn) {
+    errorDiv.textContent = 'Login succeeded, but the portal page is unavailable right now. Please try again or contact support.';
+    errorDiv.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Login';
+}
+
+function navigateToPortal(portalType, errorDiv, submitBtn) {
+    const targetPath = PORTAL_ROUTES[portalType];
+
+    if (!targetPath) {
+        console.error(`Unknown portal type: ${portalType}`);
+        showPortalNavigationError(errorDiv, submitBtn);
+        return;
+    }
+
+    fetch(targetPath, { method: 'HEAD', cache: 'no-store' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Portal route check failed with status ${response.status}`);
+            }
+
+            window.location.assign(targetPath);
+        })
+        .catch(error => {
+            console.error('Portal navigation failed:', error);
+            showPortalNavigationError(errorDiv, submitBtn);
+        });
+}
+
 function handleLogin(event) {
     event.preventDefault();
     
@@ -499,14 +533,14 @@ function handleLogin(event) {
                 localStorage.removeItem('studentProfile');
                 localStorage.setItem('adminToken', data.token);
                 localStorage.setItem('adminProfile', JSON.stringify(data.profile));
-                window.location.href = '/admin_dashboard_portal.html';
+                navigateToPortal('admin', errorDiv, submitBtn);
             } else {
                 localStorage.removeItem('adminToken');
                 localStorage.removeItem('adminProfile');
                 localStorage.setItem('studentToken', data.token);
                 localStorage.setItem('studentProfile', JSON.stringify(data.profile));
                 localStorage.setItem('accountStatus', data.profile.account_status_detail || 'active');
-                window.location.href = '/student_dashboard_portal.html';
+                navigateToPortal('student', errorDiv, submitBtn);
             }
         }
     })
