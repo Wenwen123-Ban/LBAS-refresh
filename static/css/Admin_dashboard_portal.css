@@ -257,6 +257,12 @@ body {
     font-family: inherit;
 }
 
+.form-group select option,
+.filter-select option {
+    background: #122347;
+    color: var(--text-light);
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -423,6 +429,35 @@ tbody tr:hover {
 .btn-action:hover {
     background: var(--accent);
     color: var(--navy);
+}
+
+.year-level-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.year-level-btn {
+    padding: 9px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+
+.year-level-btn:hover {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.year-level-btn.active {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.18);
+    color: var(--accent);
+    font-weight: 600;
 }
 
 .btn-action:disabled {

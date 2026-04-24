@@ -700,12 +700,11 @@ function handleRoleChange() {
     if (role === 'Student') {
         studentFields.style.display = 'block';
         schoolLevel.required = true;
-        yearLevel.required = true;
         handleSchoolLevelChange();
     } else {
         studentFields.style.display = 'none';
         schoolLevel.required = false;
-        yearLevel.required = false;
+        yearLevel.value = '';
         course.required = false;
     }
 }
@@ -713,6 +712,7 @@ function handleRoleChange() {
 function handleSchoolLevelChange() {
     const schoolLevel = document.getElementById('newUserSchoolLevel').value;
     const yearSelect = document.getElementById('newUserYearLevel');
+    const yearOptionsContainer = document.getElementById('newUserYearLevelOptions');
     const courseField = document.getElementById('courseField');
     const courseSelect = document.getElementById('newUserCourse');
 
@@ -720,7 +720,16 @@ function handleSchoolLevelChange() {
         ? ['1st Year', '2nd Year', '3rd Year', '4th Year']
         : ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'];
 
-    yearSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+    const currentValue = options.includes(yearSelect.value) ? yearSelect.value : options[0];
+    yearSelect.value = currentValue;
+    yearOptionsContainer.innerHTML = options.map(opt => `
+        <button
+            type="button"
+            class="year-level-btn ${opt === currentValue ? 'active' : ''}"
+            onclick="selectYearLevel('${opt}')"
+            aria-pressed="${opt === currentValue ? 'true' : 'false'}"
+        >${opt}</button>
+    `).join('');
 
     if (schoolLevel === 'College') {
         courseField.style.display = 'block';
@@ -730,6 +739,17 @@ function handleSchoolLevelChange() {
         courseSelect.required = false;
         courseSelect.value = '';
     }
+}
+
+function selectYearLevel(level) {
+    const yearSelect = document.getElementById('newUserYearLevel');
+    yearSelect.value = level;
+
+    document.querySelectorAll('#newUserYearLevelOptions .year-level-btn').forEach((btn) => {
+        const isActive = btn.textContent.trim() === level;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
 }
 
 async function handleAddUser(event) {
@@ -753,6 +773,9 @@ async function handleAddUser(event) {
     if (role === 'Student') {
         payload.school_level = schoolLevel;
         payload.year_level = document.getElementById('newUserYearLevel').value;
+        if (!payload.year_level) {
+            throw new Error('Please select a year level');
+        }
         if (schoolLevel === 'College') {
             payload.course = document.getElementById('newUserCourse').value;
         }
