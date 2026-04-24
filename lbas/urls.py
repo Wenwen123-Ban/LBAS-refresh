@@ -1,7 +1,7 @@
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.views.static import serve
 import os
 
@@ -10,6 +10,12 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='Index.html')),
     path('admin-portal/', TemplateView.as_view(template_name='Admin_dashboard_portal.html')),
     path('student-portal/', TemplateView.as_view(template_name='Student_dashboard_portal.html')),
+    # Legacy/typed HTML endpoints -> keep working and avoid noisy 404s
+    path('admin_dashboard_portal.html', RedirectView.as_view(url='/admin-portal/', permanent=False)),
+    path('Admin_dashboard_portal.html', RedirectView.as_view(url='/admin-portal/', permanent=False)),
+    path('student_dashboard_portal.html', RedirectView.as_view(url='/student-portal/', permanent=False)),
+    path('Student_dashboard_portal.html', RedirectView.as_view(url='/student-portal/', permanent=False)),
+
 ]
 
 if settings.DEBUG:
