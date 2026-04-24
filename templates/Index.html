@@ -1,0 +1,100 @@
+ {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LBAS - Library Borrowing and Assistance System</title>
+    <link rel="stylesheet" href="{% static 'css/Index.css' %}">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/static/images/logo.png" alt="School Logo" class="school-logo">
+                <div class="system-title">
+                    <h1>Tanguban City National High School</h1>
+                    <p>Library Borrowing & Assistance System</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navigation-bar">
+        <div class="nav-container">
+            <ul class="nav-list">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#books" class="nav-link">Browse Books</a></li>
+                <li><button id="loginBtn" class="btn-login">Login</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section id="hero" class="hero-section">
+            <div class="hero-content">
+                <h2>Welcome to LBAS</h2>
+                <p>Discover, reserve, and borrow books from our library collection.</p>
+            </div>
+        </section>
+
+        <section id="books" class="books-section">
+            <div class="section-header">
+                <h2>Books Collection</h2>
+                <div class="filter-bar">
+                    <input type="text" id="searchInput" placeholder="Search books..." class="search-input">
+                    <select id="categoryFilter" class="filter-dropdown">
+                        <option value="all">All Categories</option>
+                    </select>
+                    <select id="sortFilter" class="filter-dropdown">
+                        <option value="random">Random</option>
+                        <option value="az">Title (A-Z)</option>
+                        <option value="za">Title (Z-A)</option>
+                        <option value="newest">Newest</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="books-container">
+                <div id="bookGrid" class="book-grid">
+                    <!-- Books will be loaded here -->
+                </div>
+                <div id="bookDetailPanel" class="book-detail-panel">
+                    <!-- Book detail will be loaded here -->
+                </div>
+            </div>
+
+            <div id="paginationContainer" class="pagination-container">
+                <!-- Pagination buttons will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="schoolId">School ID:</label>
+                    <input type="text" id="schoolId" required>
+                </div>
+                <div id="passwordGroup" class="form-group" style="display: none;">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isAdmin">
+                        Admin Login
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+                <div id="loginError" class="error-message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/Index.js"></script>
+</body>
+</html>

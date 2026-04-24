@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LBAS</title>
+    <link rel="stylesheet" href="{% static 'css/Admin_dashboard_portal.css' %}">
+</head>
+<body>
+    <div class="portal-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="/static/images/logo.png" alt="Logo" class="sidebar-logo">
+                <h2 style="margin: 0; font-size: 0.95rem;">LBAS Admin</h2>
+            </div>
+
+            <div class="admin-profile-section">
+                <h3 style="margin: 0 0 4px 0; font-size: 0.95rem;">Administrator</h3>
+                <p id="adminSchoolId" style="margin: 0; font-size: 0.8rem; opacity: 0.8;">Loading...</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="switchAdminPanel('books')">
+                    <span class="nav-icon">📚</span> Books
+                </button>
+                <button class="nav-item" onclick="switchAdminPanel('users')">
+                    <span class="nav-icon">👥</span> Users
+                </button>
+                <button class="nav-item" onclick="switchAdminPanel('reports')">
+                    <span class="nav-icon">📊</span> Reports
+                </button>
+                <button class="nav-item" onclick="switchAdminPanel('settings')">
+                    <span class="nav-icon">⚙️</span> Settings
+                </button>
+            </nav>
+
+            <button class="logout-btn" onclick="logoutAdmin()">🚪 Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Admin Dashboard</h1>
+                <p id="currentDate" class="current-date">April 23, 2026</p>
+            </div>
+
+            <!-- Books Panel -->
+            <section id="booksPanel" class="content-panel active">
+                <div class="panel-layout">
+                    <!-- Add Book Form Panel -->
+                    <div class="form-panel">
+                        <h2>Add New Book</h2>
+                        <form id="addBookForm" onsubmit="handleAddBook(event)">
+                            <div class="form-group">
+                                <label for="bookNo">Book Number *</label>
+                                <input type="text" id="bookNo" required placeholder="e.g., ISBN-123456">
+                                <div id="bookNoValidation" class="validation-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bookTitle">Title *</label>
+                                <input type="text" id="bookTitle" required placeholder="Book title">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bookAuthor">Author</label>
+                                <input type="text" id="bookAuthor" placeholder="Author name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bookCategory">Category</label>
+                                <select id="bookCategory">
+                                    <option value="">Select or create category</option>
+                                </select>
+                                <div id="createCategorySection" style="display: none; margin-top: 8px;">
+                                    <input type="text" id="newCategoryName" placeholder="New category name">
+                                    <button type="button" onclick="addNewCategory()" class="btn-secondary" style="margin-top: 4px; width: 100%;">Add Category</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="coverImage">Cover Image</label>
+                                <input type="file" id="coverImage" accept=".jpg,.jpeg,.png,.webp">
+                                <div class="file-info">JPG, PNG, or WebP. Max 2MB.</div>
+                            </div>
+
+                            <div id="imagePreview" class="image-preview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview">
+                                <button type="button" onclick="clearImagePreview()" class="btn-remove">✕</button>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">➕ Add Book</button>
+                                <button type="reset" class="btn-secondary">Clear</button>
+                            </div>
+
+                            <div id="addBookError" class="error-message" style="display: none;"></div>
+                            <div id="addBookSuccess" class="success-message" style="display: none;"></div>
+                        </form>
+                    </div>
+
+                    <!-- Books List Panel -->
+                    <div class="list-panel">
+                        <h2>Library Books</h2>
+                        <div class="table-controls">
+                            <input type="text" id="searchBooks" placeholder="Search books..." class="search-input" onkeyup="filterBooksTable()">
+                        </div>
+                        <div id="booksTable" class="books-table">
+                            <div class="empty-state">
+                                <div class="empty-icon">📚</div>
+                                <p>No books yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Panel -->
+            <section id="usersPanel" class="content-panel">
+                <div class="panel-section">
+                    <h2>User Management</h2>
+
+                    <div class="filter-row">
+                        <select id="filterSchoolLevel" class="filter-select" onchange="loadUsers()">
+                            <option value="">All School Levels</option>
+                            <option value="high_school">High School</option>
+                            <option value="college">College</option>
+                        </select>
+                        <select id="filterYearLevel" class="filter-select" onchange="loadUsers()">
+                            <option value="">All Year Levels</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                        </select>
+                        <select id="filterStatus" class="filter-select" onchange="loadUsers()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="expiry_warned">Expiry Warned</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+
+                    <div id="usersSummary" class="summary-row">
+                        <div class="summary-item">
+                            <span class="summary-label">Total Users:</span>
+                            <span class="summary-value" id="totalUsersCount">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Active:</span>
+                            <span class="summary-value" id="activeUsersCount">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Expiring Soon:</span>
+                            <span class="summary-value" id="expiringUsersCount">0</span>
+                        </div>
+                    </div>
+
+                    <div id="usersTable" class="users-table">
+                        <div class="empty-state">
+                            <div class="empty-icon">👥</div>
+                            <p>No users found.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Panel -->
+            <section id="reportsPanel" class="content-panel">
+                <div class="panel-section">
+                    <h2>Reports & Analytics</h2>
+
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h3>📚 Total Books</h3>
+                            <p class="report-value" id="totalBooksReport">-</p>
+                        </div>
+                        <div class="report-card">
+                            <h3>👥 Total Users</h3>
+                            <p class="report-value" id="totalUsersReport">-</p>
+                        </div>
+                        <div class="report-card">
+                            <h3>📋 Active Reservations</h3>
+                            <p class="report-value" id="activeReservationsReport">-</p>
+                        </div>
+                        <div class="report-card">
+                            <h3>📖 Currently Borrowed</h3>
+                            <p class="report-value" id="borrowedBooksReport">-</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 32px;">
+                        <h3>📊 Book Status Distribution</h3>
+                        <table style="width: 100%; margin-top: 16px;">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statusDistribution">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 20px;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Panel -->
+            <section id="settingsPanel" class="content-panel">
+                <div class="panel-section">
+                    <h2>Admin Settings</h2>
+                    <div style="padding: 20px; background: rgba(56, 189, 248, 0.05); border: 1px solid var(--border); border-radius: 8px;">
+                        <p style="margin: 0; color: var(--muted);">System configuration and advanced settings coming soon.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <div id="editBookModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeEditModal()">×</button>
+            <h2>Edit Book</h2>
+            <form id="editBookForm" onsubmit="handleEditBook(event)">
+                <input type="hidden" id="editBookNo">
+                
+                <div class="form-group">
+                    <label for="editBookTitle">Title *</label>
+                    <input type="text" id="editBookTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editBookAuthor">Author</label>
+                    <input type="text" id="editBookAuthor">
+                </div>
+
+                <div class="form-group">
+                    <label for="editBookCategory">Category</label>
+                    <select id="editBookCategory"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCoverImage">Cover Image (Optional)</label>
+                    <input type="file" id="editCoverImage" accept=".jpg,.jpeg,.png,.webp">
+                    <div class="file-info">Leave empty to keep current cover.</div>
+                </div>
+
+                <div id="editImagePreview" class="image-preview" style="display: none;">
+                    <img id="editPreviewImg" src="" alt="Preview">
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary">💾 Save Changes</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+                </div>
+
+                <div id="editBookError" class="error-message" style="display: none; margin-top: 12px;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Renew User Modal -->
+    <div id="renewUserModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeRenewModal()">×</button>
+            <h2>Renew User Account</h2>
+            <form onsubmit="handleRenewUser(event)">
+                <input type="hidden" id="renewUserId">
+                
+                <div class="form-group">
+                    <label for="renewDays">Renew for (days):</label>
+                    <input type="number" id="renewDays" value="365" min="1" max="3650" required>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary">✓ Renew Account</button>
+                    <button type="button" class="btn-secondary" onclick="closeRenewModal()">Cancel</button>
+                </div>
+
+                <div id="renewError" class="error-message" style="display: none; margin-top: 12px;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="templates/Admin_dashboard_portal.html"></script>
+</body>
+</html>

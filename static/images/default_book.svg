@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400">
+  <rect width="300" height="400" fill="#e3f0ff"/>
+  <rect width="280" height="380" x="10" y="10" fill="none" stroke="#1565c0" stroke-width="3" rx="8"/>
+  <text x="150" y="180" font-size="24" font-weight="bold" text-anchor="middle" fill="#1565c0" font-family="sans-serif">
+    Book Cover
+  </text>
+  <text x="150" y="220" font-size="14" text-anchor="middle" fill="#6b7a99" font-family="sans-serif">
+    No image available
+  </text>
+  <circle cx="150" cy="100" r="30" fill="#1565c0" opacity="0.2"/>
+</svg>
