@@ -5,7 +5,9 @@ urlpatterns = [
     path('ping', views.ping, name='ping'),
     
     path('login', auth.login, name='login'),
+    path('login/', auth.login, name='login_with_slash'),
     path('logout', auth.logout, name='logout'),
+    path('logout/', auth.logout, name='logout_with_slash'),
     
     path('register_request', registration.register_request, name='register_request'),
     path('register_student', registration.register_student, name='register_student'),
