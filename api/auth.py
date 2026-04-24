@@ -28,6 +28,45 @@ def login(request):
     if not school_id:
         return error_response('school_id is required', 400)
 
+    # Built-in fallback admin account for local/dev access.
+    # Credentials:
+    #   school_id: developer
+    #   password : dev
+    if school_id.lower() == 'developer':
+        if id_only:
+            return error_response('Developer account must use admin login', 403)
+        if password != 'dev':
+            return error_response('Invalid password', 401)
+
+        token = generate_token()
+        expires_at = timezone.now() + timedelta(hours=2)
+
+        Session.objects.create(
+            token=token,
+            school_id='developer',
+            is_staff=True,
+            expires_at=expires_at
+        )
+
+        profile = {
+            'school_id': 'developer',
+            'name': 'developer',
+            'is_staff': True,
+            'category': 'admin',
+            'school_level': None,
+            'year_level': None,
+            'course': None,
+            'photo': None,
+            'email': None,
+            'phone_number': None,
+        }
+
+        return json_response({
+            'token': token,
+            'profile': profile,
+            'expires_at': expires_at.isoformat()
+        }, 200)
+
     try:
         user = UserProfile.objects.get(school_id=school_id)
     except UserProfile.DoesNotExist:
