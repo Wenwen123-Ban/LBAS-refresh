@@ -3,7 +3,7 @@ import math
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from core.models import Transaction, UserProfile
+from core.models import Transaction, UserProfile, Session
 from api.utils import parse_json_body, require_auth, error_response, json_response
 
 
@@ -83,7 +83,34 @@ def get_my_profile(request):
     try:
         user = UserProfile.objects.get(school_id=student_id)
     except UserProfile.DoesNotExist:
-        return error_response('User not found', 404)
+        # Support built-in/local admin sessions (for example: developer/dev)
+        # that may exist in Session table without a persisted UserProfile row.
+        auth_header = request.headers.get('Authorization', '')
+        token = auth_header[7:] if auth_header.startswith('Bearer ') else auth_header
+        session = Session.objects.filter(token=token, school_id=student_id).first()
+        if not session:
+            return error_response('User not found', 404)
+
+        profile_payload = {
+            'school_id': student_id,
+            'name': student_id,
+            'is_staff': bool(session.is_staff),
+            'category': 'admin' if session.is_staff else None,
+            'school_level': None,
+            'year_level': None,
+            'course': None,
+            'phone_number': None,
+            'email': None,
+            'photo': None,
+            'status': 'approved',
+            'account_status_detail': 'active',
+            'account_expires_at': session.expires_at.isoformat() if session.expires_at else None,
+            'created_at': session.created_at.isoformat() if session.created_at else None
+        }
+
+        response_payload = dict(profile_payload)
+        response_payload['profile'] = profile_payload
+        return json_response(response_payload, 200)
 
     profile_payload = {
         'school_id': user.school_id,
