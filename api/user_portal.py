@@ -85,23 +85,30 @@ def get_my_profile(request):
     except UserProfile.DoesNotExist:
         return error_response('User not found', 404)
 
-    return json_response({
-        'profile': {
-            'school_id': user.school_id,
-            'name': user.name,
-            'category': user.category,
-            'school_level': user.school_level,
-            'year_level': user.year_level,
-            'course': user.course,
-            'phone_number': user.phone_number,
-            'email': user.email,
-            'photo': user.photo,
-            'status': user.status,
-            'account_status_detail': user.account_status_detail,
-            'account_expires_at': user.account_expires_at.isoformat() if user.account_expires_at else None,
-            'created_at': user.created_at.isoformat()
-        }
-    }, 200)
+    profile_payload = {
+        'school_id': user.school_id,
+        'name': user.name,
+        'is_staff': user.is_staff,
+        'category': user.category,
+        'school_level': user.school_level,
+        'year_level': user.year_level,
+        'course': user.course,
+        'phone_number': user.phone_number,
+        'email': user.email,
+        'photo': user.photo,
+        'status': user.status,
+        'account_status_detail': user.account_status_detail,
+        'account_expires_at': user.account_expires_at.isoformat() if user.account_expires_at else None,
+        'created_at': user.created_at.isoformat()
+    }
+
+    # Backward-compatible response shape for both frontends:
+    # - flat fields (current dashboard scripts)
+    # - nested profile object (older consumers)
+    response_payload = dict(profile_payload)
+    response_payload['profile'] = profile_payload
+
+    return json_response(response_payload, 200)
 
 
 @require_http_methods(['POST'])
