@@ -425,6 +425,14 @@ tbody tr:hover {
     color: var(--navy);
 }
 
+.btn-action:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--muted);
+    border-color: var(--border);
+}
+
 .btn-action.danger {
     border-color: var(--danger);
     color: var(--danger);
@@ -652,6 +660,33 @@ tbody tr:hover {
     border-radius: 6px;
     font-size: 0.9rem;
     line-height: 1.4;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: rgba(16, 185, 129, 0.16);
+    border: 1px solid var(--success);
+    color: #d1fae5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Empty State */

@@ -6,6 +6,7 @@ let adminProfile = null;
 let allBooks = [];
 let selectedImageFile = null;
 let selectedEditImageFile = null;
+let availableCourses = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     await verifyAccess();
@@ -14,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeEventListeners();
     loadBooks();
     loadCategories();
+    loadCourses();
+    initializeAddUserForm();
 });
 
 async function verifyAccess() {
@@ -67,6 +70,11 @@ function initializeEventListeners() {
     document.getElementById('coverImage').addEventListener('change', handleImageSelection);
     document.getElementById('editCoverImage').addEventListener('change', handleEditImageSelection);
     document.getElementById('bookCategory').addEventListener('change', handleCategorySelection);
+}
+
+function initializeAddUserForm() {
+    handleSchoolLevelChange();
+    handleRoleChange();
 }
 
 function switchAdminPanel(panelName) {
@@ -573,6 +581,7 @@ function renderUsersTable(users) {
                 <tr>
                     <th>School ID</th>
                     <th>Name</th>
+                    <th>Role</th>
                     <th>School Level</th>
                     <th>Year</th>
                     <th>Status</th>
@@ -585,12 +594,16 @@ function renderUsersTable(users) {
                     <tr>
                         <td>${escapeHtml(user.school_id)}</td>
                         <td>${escapeHtml(user.name)}</td>
+                        <td>${escapeHtml(user.role || '-')}</td>
                         <td>${escapeHtml(user.school_level || '-')}</td>
                         <td>${escapeHtml(user.year_level || '-')}</td>
                         <td><span class="status-badge" style="background: rgba(56, 189, 248, 0.1); color: var(--accent);">${user.account_status_detail || 'active'}</span></td>
                         <td>${formatDate(user.account_expires_at)}</td>
                         <td>
-                            <button class="btn-action" onclick="openRenewModal('${escapeHtml(user.school_id)}')">Renew</button>
+                            ${user.is_staff
+                                ? '<button class="btn-action" disabled title="Admin accounts are not renewed here">Renew</button>'
+                                : `<button class="btn-action" onclick="openRenewModal('${escapeHtml(user.school_id)}')">Renew</button>`
+                            }
                         </td>
                     </tr>
                 `).join('')}
@@ -603,7 +616,7 @@ function renderUsersTable(users) {
 
 function openRenewModal(schoolId) {
     document.getElementById('renewUserId').value = schoolId;
-    document.getElementById('renewDays').value = '365';
+    document.getElementById('renewYears').value = '1';
     document.getElementById('renewError').style.display = 'none';
     document.getElementById('renewUserModal').style.display = 'flex';
 }
@@ -616,14 +629,14 @@ async function handleRenewUser(event) {
     event.preventDefault();
 
     const schoolId = document.getElementById('renewUserId').value;
-    const days = parseInt(document.getElementById('renewDays').value);
+    const extendYears = parseInt(document.getElementById('renewYears').value, 10);
     const errorDiv = document.getElementById('renewError');
     const submitBtn = event.target.querySelector('button[type="submit"]');
 
     errorDiv.style.display = 'none';
 
-    if (days < 1) {
-        errorDiv.textContent = 'Days must be at least 1';
+    if (extendYears < 1) {
+        errorDiv.textContent = 'Years must be at least 1';
         errorDiv.style.display = 'block';
         return;
     }
@@ -638,7 +651,7 @@ async function handleRenewUser(event) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${adminToken}`
             },
-            body: JSON.stringify({ school_id: schoolId, days: days })
+            body: JSON.stringify({ school_id: schoolId, extend_years: extendYears })
         });
 
         if (!response.ok) {
@@ -656,6 +669,148 @@ async function handleRenewUser(event) {
         submitBtn.disabled = false;
         submitBtn.textContent = '✓ Renew Account';
     }
+}
+
+async function loadCourses() {
+    try {
+        const response = await fetch(`${API_BASE}/courses`);
+        if (!response.ok) throw new Error('Failed to load courses');
+        const data = await response.json();
+        availableCourses = data.courses || [];
+        populateCourseOptions();
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+}
+
+function populateCourseOptions() {
+    const select = document.getElementById('newUserCourse');
+    if (!select) return;
+    select.innerHTML = '<option value="">Select course</option>' +
+        availableCourses.map(course => `<option value="${escapeHtml(course)}">${escapeHtml(course)}</option>`).join('');
+}
+
+function handleRoleChange() {
+    const role = document.getElementById('newUserRole').value;
+    const studentFields = document.getElementById('studentFields');
+    const schoolLevel = document.getElementById('newUserSchoolLevel');
+    const yearLevel = document.getElementById('newUserYearLevel');
+    const course = document.getElementById('newUserCourse');
+
+    if (role === 'Student') {
+        studentFields.style.display = 'block';
+        schoolLevel.required = true;
+        yearLevel.required = true;
+        handleSchoolLevelChange();
+    } else {
+        studentFields.style.display = 'none';
+        schoolLevel.required = false;
+        yearLevel.required = false;
+        course.required = false;
+    }
+}
+
+function handleSchoolLevelChange() {
+    const schoolLevel = document.getElementById('newUserSchoolLevel').value;
+    const yearSelect = document.getElementById('newUserYearLevel');
+    const courseField = document.getElementById('courseField');
+    const courseSelect = document.getElementById('newUserCourse');
+
+    const options = schoolLevel === 'College'
+        ? ['1st Year', '2nd Year', '3rd Year', '4th Year']
+        : ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'];
+
+    yearSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+
+    if (schoolLevel === 'College') {
+        courseField.style.display = 'block';
+        courseSelect.required = true;
+    } else {
+        courseField.style.display = 'none';
+        courseSelect.required = false;
+        courseSelect.value = '';
+    }
+}
+
+async function handleAddUser(event) {
+    event.preventDefault();
+    const errorDiv = document.getElementById('addUserError');
+    const successDiv = document.getElementById('addUserSuccess');
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    const role = document.getElementById('newUserRole').value;
+    const schoolLevel = document.getElementById('newUserSchoolLevel').value;
+    const payload = {
+        role: role.toLowerCase(),
+        school_id: document.getElementById('newUserSchoolId').value.trim(),
+        name: document.getElementById('newUserName').value.trim(),
+        password: document.getElementById('newUserPassword').value
+    };
+
+    if (role === 'Student') {
+        payload.school_level = schoolLevel;
+        payload.year_level = document.getElementById('newUserYearLevel').value;
+        if (schoolLevel === 'College') {
+            payload.course = document.getElementById('newUserCourse').value;
+        }
+    }
+
+    try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding...';
+        const response = await fetch(`${API_BASE}/admin/users/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to create user');
+        }
+
+        successDiv.textContent = data.message || 'User created successfully';
+        successDiv.style.display = 'block';
+        showToast('✅ User added successfully');
+        resetAddUserForm();
+        loadUsers();
+        setTimeout(() => { successDiv.style.display = 'none'; }, 2400);
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '➕ Add User';
+    }
+}
+
+function resetAddUserForm() {
+    const form = document.getElementById('addUserForm');
+    form.reset();
+    document.getElementById('newUserRole').value = 'Student';
+    document.getElementById('addUserError').style.display = 'none';
+    document.getElementById('addUserSuccess').style.display = 'none';
+    handleSchoolLevelChange();
+    handleRoleChange();
+}
+
+function showToast(message) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 200);
+    }, 2200);
 }
 
 async function loadReports() {

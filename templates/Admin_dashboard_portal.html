@@ -119,49 +119,113 @@
 
             <!-- Users Panel -->
             <section id="usersPanel" class="content-panel">
-                <div class="panel-section">
-                    <h2>User Management</h2>
+                <div class="panel-layout">
+                    <div class="form-panel">
+                        <h2>Add User</h2>
+                        <form id="addUserForm" onsubmit="handleAddUser(event)">
+                            <div class="form-group">
+                                <label for="newUserRole">Role *</label>
+                                <select id="newUserRole" onchange="handleRoleChange()" required>
+                                    <option value="Student">Student</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
 
-                    <div class="filter-row">
-                        <select id="filterSchoolLevel" class="filter-select" onchange="loadUsers()">
-                            <option value="">All School Levels</option>
-                            <option value="high_school">High School</option>
-                            <option value="college">College</option>
-                        </select>
-                        <select id="filterYearLevel" class="filter-select" onchange="loadUsers()">
-                            <option value="">All Year Levels</option>
-                            <option value="1">Year 1</option>
-                            <option value="2">Year 2</option>
-                            <option value="3">Year 3</option>
-                            <option value="4">Year 4</option>
-                        </select>
-                        <select id="filterStatus" class="filter-select" onchange="loadUsers()">
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="expiry_warned">Expiry Warned</option>
-                            <option value="expired">Expired</option>
-                        </select>
+                            <div class="form-group">
+                                <label for="newUserSchoolId">School ID *</label>
+                                <input type="text" id="newUserSchoolId" required placeholder="e.g., 2026-0001">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newUserName">Full Name *</label>
+                                <input type="text" id="newUserName" required placeholder="Enter full name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newUserPassword">Password *</label>
+                                <input type="password" id="newUserPassword" required minlength="6" placeholder="At least 6 characters">
+                            </div>
+
+                            <div id="studentFields">
+                                <div class="form-group">
+                                    <label for="newUserSchoolLevel">School Level *</label>
+                                    <select id="newUserSchoolLevel" onchange="handleSchoolLevelChange()">
+                                        <option value="High School">High School</option>
+                                        <option value="College">College</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="newUserYearLevel">Year Level *</label>
+                                    <select id="newUserYearLevel"></select>
+                                </div>
+
+                                <div class="form-group" id="courseField" style="display: none;">
+                                    <label for="newUserCourse">Course *</label>
+                                    <select id="newUserCourse">
+                                        <option value="">Select course</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">➕ Add User</button>
+                                <button type="reset" class="btn-secondary" onclick="resetAddUserForm()">Clear</button>
+                            </div>
+
+                            <div id="addUserError" class="error-message" style="display: none;"></div>
+                            <div id="addUserSuccess" class="success-message" style="display: none;"></div>
+                        </form>
                     </div>
 
-                    <div id="usersSummary" class="summary-row">
-                        <div class="summary-item">
-                            <span class="summary-label">Total Users:</span>
-                            <span class="summary-value" id="totalUsersCount">0</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Active:</span>
-                            <span class="summary-value" id="activeUsersCount">0</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Expiring Soon:</span>
-                            <span class="summary-value" id="expiringUsersCount">0</span>
-                        </div>
-                    </div>
+                    <div class="list-panel">
+                        <h2>Users</h2>
 
-                    <div id="usersTable" class="users-table">
-                        <div class="empty-state">
-                            <div class="empty-icon">👥</div>
-                            <p>No users found.</p>
+                        <div class="filter-row">
+                            <select id="filterSchoolLevel" class="filter-select" onchange="loadUsers()">
+                                <option value="">All School Levels</option>
+                                <option value="High School">High School</option>
+                                <option value="College">College</option>
+                            </select>
+                            <select id="filterYearLevel" class="filter-select" onchange="loadUsers()">
+                                <option value="">All Year Levels</option>
+                                <option value="Grade 7">Grade 7</option>
+                                <option value="Grade 8">Grade 8</option>
+                                <option value="Grade 9">Grade 9</option>
+                                <option value="Grade 10">Grade 10</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                            <select id="filterStatus" class="filter-select" onchange="loadUsers()">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="expiry_warned">Expiry Warned</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+
+                        <div id="usersSummary" class="summary-row">
+                            <div class="summary-item">
+                                <span class="summary-label">Total Users:</span>
+                                <span class="summary-value" id="totalUsersCount">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Active:</span>
+                                <span class="summary-value" id="activeUsersCount">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Expiring Soon:</span>
+                                <span class="summary-value" id="expiringUsersCount">0</span>
+                            </div>
+                        </div>
+
+                        <div id="usersTable" class="users-table">
+                            <div class="empty-state">
+                                <div class="empty-icon">👥</div>
+                                <p>No users found.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,8 +339,8 @@
                 <input type="hidden" id="renewUserId">
                 
                 <div class="form-group">
-                    <label for="renewDays">Renew for (days):</label>
-                    <input type="number" id="renewDays" value="365" min="1" max="3650" required>
+                    <label for="renewYears">Renew for (years):</label>
+                    <input type="number" id="renewYears" value="1" min="1" max="10" required>
                 </div>
 
                 <div style="display: flex; gap: 12px; margin-top: 20px;">
@@ -288,6 +352,8 @@
             </form>
         </div>
     </div>
+
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="{% static 'js/Admin_dashboard_portal.js' %}"></script>
 </body>
