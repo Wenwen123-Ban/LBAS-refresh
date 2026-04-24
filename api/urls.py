@@ -40,7 +40,9 @@ urlpatterns = [
     
     path('my/transactions', user_portal.get_my_transactions, name='get_my_transactions'),
     path('my/profile', user_portal.get_my_profile, name='get_my_profile'),
+    path('my/profile/', user_portal.get_my_profile, name='get_my_profile_with_slash'),
     path('my/profile/update-photo', user_portal.update_profile_photo, name='update_profile_photo'),
+    path('my/profile/update-photo/', user_portal.update_profile_photo, name='update_profile_photo_with_slash'),
     
     path('admin/users', views.get_users, name='get_users'),
     path('admin/users/summary', views.get_users_summary, name='get_users_summary'),
