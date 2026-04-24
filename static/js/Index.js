@@ -467,7 +467,7 @@ function handleLogin(event) {
     
     const schoolId = document.getElementById('schoolId').value.trim();
     const password = document.getElementById('password').value;
-    const isAdmin = document.getElementById('isAdmin').checked;
+    const isAdminChecked = document.getElementById('isAdmin').checked;
     const errorDiv = document.getElementById('loginError');
     const submitBtn = event.target.querySelector('button[type="submit"]');
     
@@ -481,7 +481,7 @@ function handleLogin(event) {
         body: JSON.stringify({
             school_id: schoolId,
             password: password,
-            id_only: !isAdmin
+            id_only: !isAdminChecked
         })
     })
     .then(res => res.json())
@@ -492,11 +492,17 @@ function handleLogin(event) {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Login';
         } else {
-            if (isAdmin) {
+            const isAdminAccount = !!(data.profile && data.profile.is_staff);
+
+            if (isAdminAccount) {
+                localStorage.removeItem('studentToken');
+                localStorage.removeItem('studentProfile');
                 localStorage.setItem('adminToken', data.token);
                 localStorage.setItem('adminProfile', JSON.stringify(data.profile));
                 window.location.href = '/admin_dashboard_portal.html';
             } else {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminProfile');
                 localStorage.setItem('studentToken', data.token);
                 localStorage.setItem('studentProfile', JSON.stringify(data.profile));
                 localStorage.setItem('accountStatus', data.profile.account_status_detail || 'active');
