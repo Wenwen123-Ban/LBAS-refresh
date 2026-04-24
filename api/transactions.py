@@ -7,7 +7,7 @@ from datetime import timedelta
 from core.models import Transaction, Book, UserProfile
 from api.utils import (
     parse_json_body, require_auth, require_admin, error_response, json_response,
-    calculate_deadline, create_notification, recalculate_book_status
+    calculate_deadline, create_notification, sync_book_transactions
 )
 from api.expiry import run_expiry_check
 
@@ -88,6 +88,8 @@ def reserve_book(request):
     if book.status == 'Available':
         book.status = 'Pending'
         book.save()
+
+    sync_book_transactions(book_no)
 
     return json_response({
         'transaction_id': str(transaction.transaction_id),
@@ -191,15 +193,7 @@ def deny_reservation(request):
     transaction.status = 'Cancelled'
     transaction.save()
 
-    active_for_book = Transaction.objects.filter(
-        book_no=transaction.book_no,
-        status__in=['Pending', 'Reserved']
-    ).exists()
-
-    if not active_for_book:
-        book = Book.objects.get(book_no=transaction.book_no)
-        book.status = 'Available'
-        book.save()
+    sync_book_transactions(transaction.book_no)
 
     create_notification(
         recipient_school_id=transaction.student_id,
@@ -306,22 +300,7 @@ def return_book(request):
     transaction.date_returned = timezone.now()
     transaction.save()
 
-    next_transaction = Transaction.objects.filter(
-        book_no=transaction.book_no,
-        status__in=['Pending', 'Reserved']
-    ).order_by('created_at').first()
-
-    if next_transaction:
-        if next_transaction.status == 'Pending':
-            book_status = 'Pending'
-        else:
-            book_status = 'Reserved'
-    else:
-        book_status = 'Available'
-
-    book = Book.objects.get(book_no=transaction.book_no)
-    book.status = book_status
-    book.save()
+    sync_book_transactions(transaction.book_no)
 
     return json_response({
         'success': True
@@ -355,16 +334,7 @@ def cancel_transaction(request):
     transaction.status = 'Cancelled'
     transaction.save()
 
-    remaining_transactions = Transaction.objects.filter(
-        book_no=transaction.book_no,
-        status__in=['Pending', 'Reserved', 'Borrowed']
-    ).order_by('created_at')
-
-    for i, txn in enumerate(remaining_transactions, 1):
-        txn.queue_position = i
-        txn.save()
-
-    recalculate_book_status(transaction.book_no)
+    sync_book_transactions(transaction.book_no)
 
     return json_response({
         'success': True
