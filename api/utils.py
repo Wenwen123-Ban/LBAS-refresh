@@ -129,6 +129,23 @@ def recalculate_book_status(book_no):
     Book.objects.filter(book_no=book_no).update(status=new_status)
 
 
+def sync_book_transactions(book_no):
+    """
+    Keep transaction queue positions and book status synchronized.
+    """
+    active_transactions = Transaction.objects.filter(
+        book_no=book_no,
+        status__in=['Pending', 'Reserved', 'Borrowed', 'Unreturned']
+    ).order_by('created_at')
+
+    for index, transaction in enumerate(active_transactions, start=1):
+        if transaction.queue_position != index:
+            transaction.queue_position = index
+            transaction.save(update_fields=['queue_position', 'updated_at'])
+
+    recalculate_book_status(book_no)
+
+
 def json_response(data, status=200):
     """Return a JSON response."""
     return JsonResponse(data, status=status)
