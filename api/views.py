@@ -32,7 +32,7 @@ def get_users(request):
     if limit < 1:
         limit = 100
 
-    queryset = UserProfile.objects.filter(is_staff=False)
+    queryset = UserProfile.objects.all()
 
     if school_level and school_level != 'all':
         queryset = queryset.filter(school_level=school_level)
@@ -44,7 +44,7 @@ def get_users(request):
         queryset = queryset.filter(course=course)
 
     if status and status != 'all':
-        queryset = queryset.filter(status=status)
+        queryset = queryset.filter(account_status_detail=status)
 
     if sort == 'az':
         queryset = queryset.order_by('name')
@@ -65,6 +65,8 @@ def get_users(request):
             'school_id': user.school_id,
             'name': user.name,
             'category': user.category,
+            'role': 'Admin' if user.is_staff else 'Student',
+            'is_staff': user.is_staff,
             'school_level': user.school_level,
             'year_level': user.year_level,
             'course': user.course,
@@ -96,6 +98,79 @@ def get_users(request):
             'status': status
         }
     }, 200)
+
+
+@require_http_methods(['POST'])
+def create_admin_user(request):
+    """
+    POST /api/admin/users/create
+    Body: {
+      role, school_id, name, password,
+      school_level, year_level, course (required for college students)
+    }
+    """
+    admin_school_id = require_admin(request)
+    if not admin_school_id:
+        return error_response('Admin authentication required', 401)
+
+    body = parse_json_body(request)
+    if not body:
+        return error_response('Invalid JSON', 400)
+
+    role = str(body.get('role', 'student')).strip().lower()
+    school_id = str(body.get('school_id', '')).strip()
+    name = str(body.get('name', '')).strip()
+    password = str(body.get('password', '')).strip()
+
+    if not school_id or not name or not password:
+        return error_response('school_id, name and password are required', 400)
+
+    if role not in ['student', 'admin']:
+        return error_response('role must be student or admin', 400)
+
+    if UserProfile.objects.filter(school_id=school_id).exists():
+        return error_response('school_id already registered', 409)
+
+    is_admin = role == 'admin'
+    school_level = str(body.get('school_level', '')).strip()
+    year_level = str(body.get('year_level', '')).strip()
+    course = str(body.get('course', '')).strip()
+
+    if not is_admin:
+        if school_level not in ['High School', 'College']:
+            return error_response('school_level must be High School or College', 400)
+        if school_level == 'High School' and year_level not in ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10']:
+            return error_response('Invalid year_level for High School', 400)
+        if school_level == 'College' and year_level not in ['1st Year', '2nd Year', '3rd Year', '4th Year']:
+            return error_response('Invalid year_level for College', 400)
+        if school_level == 'College' and not course:
+            return error_response('course is required for College students', 400)
+    else:
+        school_level = 'College'
+        year_level = '4th Year'
+        course = ''
+
+    account_expires_at = timezone.now() + timedelta(days=365 * 4)
+    user = UserProfile.objects.create(
+        school_id=school_id,
+        name=name,
+        password=hash_password(password),
+        is_staff=is_admin,
+        status='approved',
+        category='Staff' if is_admin else ('College Student' if school_level == 'College' else 'High School Student'),
+        school_level=school_level,
+        year_level=year_level,
+        course=course,
+        account_expires_at=account_expires_at,
+        account_status_detail='active'
+    )
+
+    return json_response({
+        'success': True,
+        'school_id': user.school_id,
+        'role': 'Admin' if user.is_staff else 'Student',
+        'message': f'{"Admin" if user.is_staff else "Student"} user created successfully'
+    }, 201)
 
 
 @require_http_methods(['GET'])
