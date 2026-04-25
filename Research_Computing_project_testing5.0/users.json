@@ -1,0 +1,39 @@
+[
+    {
+        "name": "Null",
+        "password": "123",
+        "school_id": "54321",
+        "category": "Student",
+        "photo": "54321_images_1_4.jpeg"
+    },
+    {
+        "name": "Hulk",
+        "school_id": "101010",
+        "password": "12345",
+        "category": "Student",
+        "photo": "101010_1758232565072.jpg"
+    },
+    {
+        "name": "GUK GUK",
+        "school_id": "7777",
+        "password": "777",
+        "category": "Student",
+        "photo": "7777_images_1_6.jpeg"
+    },
+    {
+        "name": "Dell",
+        "school_id": "202020",
+        "password": "20",
+        "category": "Student",
+        "photo": "202020_17215391850221.jpg",
+        "created_at": "2026-01-30 18:26"
+    },
+    {
+        "name": "Jujitsu",
+        "school_id": "2026-001",
+        "password": "12345",
+        "category": "Student",
+        "photo": "2026-001_1725668056004.jpg",
+        "created_at": "2026-01-31 11:39"
+    }
+]
