@@ -1,0 +1,74 @@
+[
+    {
+        "id": "6301ac39",
+        "timestamp": "2026-01-30 07:55:34",
+        "school_id": "121212",
+        "stars": 5,
+        "feedback": "ITS GUD",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "b6138d32",
+        "timestamp": "2026-01-30 07:58:51",
+        "school_id": "Dell",
+        "stars": 1,
+        "feedback": "Not gud",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "f3a1370d",
+        "timestamp": "2026-01-30 08:29:44",
+        "school_id": "12345",
+        "stars": 4,
+        "feedback": "It's gud but not gud yet",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "b4f10150",
+        "timestamp": "2026-01-30 09:34:52",
+        "school_id": "123",
+        "stars": 5,
+        "feedback": "It's gud now but not gud yet",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "ed4cc895",
+        "timestamp": "2026-01-30 09:35:39",
+        "school_id": "101010",
+        "stars": 4,
+        "feedback": "Very gud",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "c090981a",
+        "timestamp": "2026-01-30 09:36:37",
+        "school_id": "54321",
+        "stars": 5,
+        "feedback": "Kudkud",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "716af68b",
+        "timestamp": "2026-01-30 09:38:45",
+        "school_id": "454545",
+        "stars": 3,
+        "feedback": "NAH",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "id": "fdd98a23",
+        "timestamp": "2026-01-30 16:57:25",
+        "school_id": "7777",
+        "stars": 5,
+        "feedback": "GUDS NA BAHALA NA 😂😂",
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    },
+    {
+        "rating_id": "54fa4731-0",
+        "timestamp": "2026-01-31 13:40:21",
+        "school_id": "dev",
+        "stars": 5,
+        "feedback": "Not gud yet ",
+        "platform": "Tablet"
+    }
+]

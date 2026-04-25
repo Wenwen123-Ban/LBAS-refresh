@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Developer",
+        "school_id": "Dev",
+        "password": "12345",
+        "role": "admin"
+    },
+    {
+        "name": "LIBRARIAN(TEST)",
+        "password": "12345",
+        "category": "Staff",
+        "school_id": "12345",
+        "photo": "12345_1758233112804.jpg"
+    },
+    {
+        "name": "GUD GUD",
+        "school_id": "898989",
+        "password": "12345",
+        "category": "Staff",
+        "photo": "898989_1758181619851.jpg"
+    },
+    {
+        "name": "Jujitsu",
+        "school_id": "454545",
+        "password": "456",
+        "category": "Staff",
+        "photo": "454545_1719460003009.jpg",
+        "date_joined": "2026-01-30"
+    }
+]

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LBAS | Secured Mobile Access</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #38bdf8; --success: #10b981; --danger: #ef4444; }
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        .network-banner { background: var(--primary); color: var(--accent); font-size: 10px; text-align: center; padding: 4px; font-weight: bold; letter-spacing: 1px; }
+        
+        .lbas-definition { background: #e2e8f0; padding: 10px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid var(--accent); }
+        .lbas-letter { font-weight: 800; color: var(--primary); margin-right: 5px; }
+
+        .filter-wrapper { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0 15px 0; scrollbar-width: none; }
+        .cat-pill { white-space: nowrap; padding: 8px 16px; border-radius: 20px; background: white; border: 1px solid #cbd5e1; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .cat-pill.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
+        #loginSection { height: 90vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        .mobile-nav { background: white; padding: 15px 20px; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .book-item { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid #e2e8f0; }
+        .status-tag { position: absolute; top: 15px; right: 15px; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 10px; text-transform: uppercase; }
+        .tag-available { background: #dcfce7; color: #166534; }
+        .tag-reserved { background: #fef3c7; color: #92400e; }
+        .tag-borrowed { background: #fee2e2; color: #991b1b; }
+        .btn-action { background: var(--accent); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+        #accountPanel { display: none; background: white; border-bottom: 1px solid #e2e8f0; padding: 20px; }
+        
+        .rating-fab { position: fixed; bottom: 25px; right: 25px; background: var(--primary); color: var(--accent); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2000; border: 2px solid var(--accent); font-size: 24px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.3s; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .rating-modal { background: white; width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; text-align: center; }
+        .star-container { font-size: 35px; color: #cbd5e1; margin: 15px 0; }
+        .star.selected { color: #f59e0b; }
+    </style>
+</head>
+<body>
+
+<div class="network-banner">LBAS SECURE CROSS-DATABASE PROTOCOL</div>
+
+<div id="fabReview" class="rating-fab" onclick="toggleRatingModal(true)">⭐</div>
+
+<div id="ratingModal" class="modal-overlay">
+    <div class="rating-modal">
+        <h4 class="fw-bold">Experience Rating</h4>
+        <p class="text-muted small">Help our developers improve the system.</p>
+        <div class="star-container">
+            <span class="star" onclick="setStars(1)">★</span>
+            <span class="star" onclick="setStars(2)">★</span>
+            <span class="star" onclick="setStars(3)">★</span>
+            <span class="star" onclick="setStars(4)">★</span>
+            <span class="star" onclick="setStars(5)">★</span>
+        </div>
+        <textarea id="ratingFeedback" class="form-control mb-3" placeholder="Additional feedback (optional)..." rows="3"></textarea>
+        <div class="d-flex gap-2">
+            <button class="btn btn-light w-100 rounded-pill" onclick="toggleRatingModal(false)">CLOSE</button>
+            <button class="btn btn-dark w-100 rounded-pill" onclick="submitRating()">SUBMIT</button>
+        </div>
+    </div>
+</div>
+
+<div id="loginSection">
+    <div class="login-card">
+        <h2 class="fw-bold text-dark">LBAS LOGIN</h2>
+        <p class="text-muted small">Cross-Registry Authentication Active</p>
+        <hr>
+        <div class="mb-3">
+            <input type="text" id="school_id_input" class="form-control form-control-lg text-center" placeholder="School ID">
+        </div>
+        <div class="mb-3">
+            <input type="password" id="password_input" class="form-control form-control-lg text-center" placeholder="Password (Staff Only)">
+        </div>
+        <button id="loginBtn" class="btn btn-dark btn-lg w-100 rounded-pill" onclick="handleLogin()">VERIFY IDENTITY</button>
+        <div id="loginError" class="text-danger small mt-3 fw-bold" style="display:none;">
+            <i class="fas fa-exclamation-circle me-1"></i> ID NOT FOUND OR INVALID PASSWORD
+        </div>
+    </div>
+</div>
+
+<div id="portalSection" style="display: none;">
+    <nav class="mobile-nav">
+        <div>
+            <span class="badge bg-primary text-uppercase mb-1" id="user_type_label" style="font-size: 8px;">USER</span>
+            <h6 class="fw-bold m-0" id="display_name">User Name</h6>
+        </div>
+        <button class="btn btn-sm btn-outline-dark" onclick="toggleAccount()">Profile</button>
+    </nav>
+
+    <div id="accountPanel">
+        <div class="d-flex align-items-center mb-3">
+            <img id="user_pic" src="" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--accent);">
+            <div>
+                <strong id="full_name">Name</strong><br>
+                <small class="text-muted" id="id_val"></small><br>
+                <span class="badge bg-light text-dark border mt-1" id="database_source" style="font-size: 9px;"></span>
+            </div>
+        </div>
+        <hr>
+        <p class="fw-bold small mb-2 text-uppercase">Current Leases (Limit 5/Day)</p>
+        <div id="activeHistory"></div>
+        <button class="btn btn-danger btn-sm w-100 mt-3 rounded-pill" onclick="logout()">LOGOUT</button>
+    </div>
+
+    <div class="container py-4">
+        <div id="lbasInfo" class="lbas-definition" style="display:none;">
+            <h6 class="fw-bold mb-2">SYSTEM IDENTIFICATION:</h6>
+            <div class="small">
+                <span class="lbas-letter">L</span>ibrary 
+                <span class="lbas-letter">B</span>ook 
+                <span class="lbas-letter">A</span>ccess 
+                <span class="lbas-letter">S</span>ystem
+            </div>
+        </div>
+
+        <input type="text" id="searchBar" class="form-control form-control-lg border-0 shadow-sm rounded-pill px-4 mb-3" placeholder="Search library..." onkeyup="loadData()">
+        
+        <div class="filter-wrapper" id="catFilterList">
+            <div class="cat-pill active" onclick="setCategoryFilter('All')">All</div>
+            <div class="cat-pill" onclick="setCategoryFilter('Science')">Science</div>
+            <div class="cat-pill" onclick="setCategoryFilter('Mathematics')">Math</div>
+            <div class="cat-pill" onclick="setCategoryFilter('Literature')">Fiction</div>
+            <div class="cat-pill" onclick="setCategoryFilter('History')">History</div>
+        </div>
+
+        <div id="bookContainer"></div>
+    </div>
+</div>
+
+<script>
+    let currentID = null;
+    let currentToken = null;
+    let selectedCategory = 'All';
+    let selectedStars = 5;
+
+    async function handleLogin() {
+        const id = document.getElementById('school_id_input').value.trim();
+        const pwd = document.getElementById('password_input').value.trim();
+        if(!id) return;
+        
+        const btn = document.getElementById('loginBtn');
+        btn.innerText = "VERIFYING...";
+        btn.disabled = true;
+        
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    school_id: id, 
+                    password: pwd,
+                    type: pwd ? 'admin' : 'student' // Hint to backend which DB to check
+                })
+            });
+            
+            const data = await res.json();
+            if(data.success) {
+                currentID = id;
+                currentToken = data.token;
+                localStorage.setItem('lbas_id', id);
+                localStorage.setItem('lbas_token', currentToken);
+                initPortal(data.profile);
+            } else {
+                const errorDiv = document.getElementById('loginError');
+                errorDiv.innerText = data.message || "ID NOT RECOGNIZED";
+                errorDiv.style.display = 'block';
+                btn.innerText = "VERIFY IDENTITY";
+                btn.disabled = false;
+                setTimeout(() => { errorDiv.style.display = 'none'; }, 4000);
+            }
+        } catch (err) {
+            btn.innerText = "CONNECTION ERROR";
+            btn.disabled = false;
+        }
+    }
+
+    function initPortal(profile) {
+        if(!profile) return logout();
+        
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('portalSection').style.display = 'block';
+        
+        const isLibrarian = profile.category === 'Staff';
+        
+        if(isLibrarian) {
+            document.getElementById('lbasInfo').style.display = 'block';
+        }
+
+        document.getElementById('user_type_label').innerText = isLibrarian ? "LIBRARIAN ACCESS" : "STUDENT ACCESS";
+        document.getElementById('user_type_label').className = isLibrarian ? "badge bg-danger text-uppercase mb-1" : "badge bg-primary text-uppercase mb-1";
+        document.getElementById('database_source').innerText = isLibrarian ? "SOURCE: ADMINS.JSON" : "SOURCE: USERS.JSON";
+
+        document.getElementById('display_name').innerText = profile.name ? profile.name.split(' ')[0] : "User";
+        document.getElementById('full_name').innerText = profile.name || "Unknown User";
+        document.getElementById('id_val').innerText = "ID: " + profile.school_id;
+        document.getElementById('user_pic').src = profile.photo ? "/Profile/" + profile.photo : "/Profile/default.png";
+        
+        loadData();
+        checkRatingStatus();
+        setInterval(loadData, 5000);
+        setInterval(updateTimers, 1000);
+    }
+
+    async function loadData() {
+        try {
+            const [bRes, tRes] = await Promise.all([fetch('/api/books'), fetch('/api/transactions')]);
+            const books = await bRes.json();
+            const trans = await tRes.json();
+            const search = document.getElementById('searchBar').value.toLowerCase();
+            
+            const filtered = books.filter(b => {
+                const matchesSearch = b.title.toLowerCase().includes(search) || b.book_no.toLowerCase().includes(search);
+                const matchesCategory = (selectedCategory === 'All') || (b.category === selectedCategory);
+                return matchesSearch && matchesCategory;
+            });
+
+            document.getElementById('bookContainer').innerHTML = filtered.map(b => `
+                <div class="book-item shadow-sm">
+                    <span class="status-tag tag-${b.status.toLowerCase()}">${b.status}</span>
+                    <span class="text-muted" style="font-size: 10px;">${b.category}</span>
+                    <div class="fw-bold text-dark">${b.title}</div>
+                    <code class="small text-primary">${b.book_no}</code>
+                    ${b.status === 'Available' ? `<button class="btn-action" onclick="reserveBook('${b.book_no}')">RESERVE</button>` : ''}
+                </div>`).join('');
+
+            const myActive = trans.filter(t => String(t.school_id) === String(currentID) && (t.status === 'Reserved' || t.status === 'Borrowed')).reverse();
+            document.getElementById('activeHistory').innerHTML = myActive.map(t => `
+                <div class="p-2 border-bottom small">
+                    <b>${t.book_no}</b> <span class="badge bg-info">${t.status}</span><br>
+                    <span class="timer" data-expiry="${t.expiry}" data-status="${t.status}">Calculating...</span>
+                </div>`).join('') || '<p class="text-muted small text-center mt-2">No active reservations.</p>';
+        } catch (e) { console.error("Data Sync Error"); }
+    }
+
+    async function reserveBook(no) {
+        const res = await fetch('/api/reserve', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ book_no: no, school_id: currentID, token: currentToken })
+        });
+        const result = await res.json();
+        if(result.success) loadData(); else alert(result.message);
+    }
+
+    function setCategoryFilter(cat) {
+        selectedCategory = cat;
+        document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.innerText.includes(cat) || (cat==='All' && p.innerText==='All')));
+        loadData();
+    }
+
+    function updateTimers() {
+        document.querySelectorAll('.timer').forEach(el => {
+            const diff = new Date(el.dataset.expiry) - new Date();
+            if (diff <= 0) el.innerText = "EXPIRED";
+            else {
+                const m = Math.floor(diff / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                el.innerText = `Expires in: ${m}m ${s}s`;
+            }
+        });
+    }
+
+    async function checkRatingStatus() {
+        if(!currentID) return;
+        try {
+            const res = await fetch(`/api/rating_status/${currentID}`);
+            const data = await res.json();
+            document.getElementById('fabReview').style.display = data.show ? 'flex' : 'none';
+        } catch (e) { }
+    }
+
+    function toggleRatingModal(show) {
+        document.getElementById('ratingModal').style.display = show ? 'flex' : 'none';
+        if(show) setStars(5);
+    }
+
+    function setStars(count) {
+        selectedStars = count;
+        document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('selected', i < count));
+    }
+
+    async function submitRating() {
+        const feedback = document.getElementById('ratingFeedback').value;
+        const res = await fetch('/api/rate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ school_id: currentID, token: currentToken, stars: selectedStars, feedback: feedback })
+        });
+        const data = await res.json();
+        if(data.success) {
+            toggleRatingModal(false);
+            checkRatingStatus();
+            alert("Feedback received! Thank you.");
+        }
+    }
+
+    function toggleAccount() { const p = document.getElementById('accountPanel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
+    function logout() { localStorage.clear(); location.reload(); }
+    
+    window.onload = () => {
+        const savedID = localStorage.getItem('lbas_id');
+        if(savedID) {
+            currentID = savedID;
+            currentToken = localStorage.getItem('lbas_token');
+            // Ensure we fetch the user profile correctly from the cross-registry
+            fetch('/api/user/' + savedID)
+                .then(r => r.json())
+                .then(d => {
+                    if(d.profile) initPortal(d.profile);
+                    else logout();
+                })
+                .catch(logout);
+        }
+    }
+</script>
+</body>
+</html>
